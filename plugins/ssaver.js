@@ -72,6 +72,51 @@ smd({ on: "main" }, async (message, text, { icmd }) => {
   }
 });
 
+smd({
+  'pattern': "activemembers",
+  'desc': "Checks the active members in the group.",
+  'category': 'group',
+  'filename': __filename
+}, async (message, args) => {
+  try {
+    if (!message.isGroup) {
+      return message.reply("_This command is only for groups!_");
+    }
+
+    const groupJid = message.chat;
+    const timeThreshold = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const now = Date.now();
+
+    if (!activeMembers[groupJid]) {
+      return message.reply("_No activity recorded in this group yet._");
+    }
+
+    const activeList = Object.keys(activeMembers[groupJid]).filter(userId => {
+      return now - activeMembers[groupJid][userId] <= timeThreshold;
+    });
+
+    if (activeList.length === 0) {
+      return message.reply("_No active members in the past 24 hours._");
+    }
+
+    let activeMessage = "🟢 *Active Members in the Past 24 Hours:* \n\n";
+    activeList.forEach(userId => {
+      activeMessage += `📌 @${userId.split('@')[0]}\n`;
+    });
+
+    await message.bot.sendMessage(message.chat, {
+      'text': activeMessage,
+      'mentions': activeList
+    }, {
+      'quoted': message
+    });
+
+  } catch (error) {
+    console.error(error);
+    return message.reply("_Something went wrong. Please try again later._");
+  }
+});
+
 smd({ on: "text" }, async (message, text, { icmd }) => {
   try {
     if (
