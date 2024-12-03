@@ -17,10 +17,8 @@ const fs = require("fs-extra");
 const axios = require("axios");
 const fetch = require("node-fetch");
 const path = require("path");
-const gifted = require('gifted-dls');
-const sampleUrl = 'https://youtu.be/wJnBTPUQS5A?si=klI0qxyOnnbcriOk'; 
-let data = await gifted.giftedyta(sampleUrl)
-console.log(data)
+const gifted = require("gifted-dls");
+
 var videotime = 2000;
 const { cmd } = require("../lib/plugins");
 
@@ -53,6 +51,10 @@ smd({
     });
 
     // Use the new API to get download links
+    const sampleUrl = 'https://youtu.be/wJnBTPUQS5A?si=klI0qxyOnnbcriOk'; 
+    let data = await gifted.giftedyta(sampleUrl)
+    console.log(data);
+
     const downloadApiUrl = "https://api.giftedtech.my.id/api/download/ytaudio?apikey=gifted&url=" + encodeURIComponent(_0x4f86cb.url);
     
     let _0x4acf6c = 3; // Retry logic
