@@ -55,7 +55,7 @@ smd({
     let data = await gifted.giftedyta(sampleUrl)
     console.log(data);
 
-    const downloadApiUrl = "https://api.giftedtech.my.id/api/download/ytaudio?apikey=gifted&url=" + encodeURIComponent(_0x4f86cb.url);
+    const downloadApiUrl = "https://www.dark-yasiya-api.site/download/ytmp3?url=" + encodeURIComponent(_0x4f86cb.url);
     
     let _0x4acf6c = 3; // Retry logic
     while (_0x4acf6c > 0) {
