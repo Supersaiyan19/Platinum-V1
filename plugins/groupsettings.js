@@ -949,36 +949,40 @@ smd(
 
       // Group check
       if (!message.isGroup) {
-        return message.reply(tlang().group);
+        return await message.reply(tlang().group);
       }
 
       // Admin check
+      console.log("isAdmin:", message.isAdmin, "isCreator:", message.isCreator);
       if (!message.isAdmin && !message.isCreator) {
-        return message.reply(tlang().admin);
+        return await message.reply(tlang().admin);
       }
 
-      const [command, ...rest] = message.split(" ");
+      // Split command
+      const [command, ...rest] = message.body.split(" ");
       const welcomeMessage = rest.join(" ").trim();
 
+      // Group settings
       const groupSettings =
         (await bot_.findOne({ id: "group_" + groupId })) ||
         (await bot_.new({ id: "group_" + groupId, welcomeEnabled: "false" }));
 
+      // Handle commands
       if (command.toLowerCase() === "on") {
         if (groupSettings.welcomeEnabled === "true") {
-          return await context.reply("*Welcome messages are already enabled!*");
+          return await message.reply("*Welcome messages are already enabled!*");
         }
         await bot_.updateOne({ id: "group_" + groupId }, { welcomeEnabled: "true" });
-        return await context.reply("*Welcome messages have been enabled!*");
+        return await message.reply("*Welcome messages have been enabled!*");
       } else if (command.toLowerCase() === "off") {
         if (groupSettings.welcomeEnabled === "false") {
-          return await context.reply("*Welcome messages are already disabled!*");
+          return await message.reply("*Welcome messages are already disabled!*");
         }
         await bot_.updateOne({ id: "group_" + groupId }, { welcomeEnabled: "false" });
-        return await context.reply("*Welcome messages have been disabled!*");
+        return await message.reply("*Welcome messages have been disabled!*");
       } else if (command.toLowerCase() === "set") {
         if (!welcomeMessage) {
-          return await context.reply(
+          return await message.reply(
             "*Please provide a welcome message to set!*\n" +
             "Placeholders you can use:\n" +
             "`{user}` - New member's name\n" +
@@ -989,9 +993,9 @@ smd(
           { id: "group_" + groupId },
           { welcomeMessage: welcomeMessage }
         );
-        return await context.reply("*Welcome message updated successfully!*");
+        return await message.reply("*Welcome message updated successfully!*");
       } else {
-        return await context.reply(
+        return await message.reply(
           "*Invalid usage!*\n\nUse:\n" +
           "`!welcome on` - Enable welcome messages\n" +
           "`!welcome off` - Disable welcome messages\n" +
@@ -1000,7 +1004,7 @@ smd(
       }
     } catch (error) {
       console.error("Error in welcome command: ", error);
-      return await context.error("An error occurred while managing the welcome message.");
+      return await message.reply("An error occurred while managing the welcome message.");
     }
   }
 );
