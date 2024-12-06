@@ -933,8 +933,6 @@ smd(
     }
   }
 );
-
-        _0x2154d6 === "off" ||
 smd(
   {
     pattern: "welcome",
