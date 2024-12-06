@@ -21,6 +21,7 @@ const gifted = require("gifted-dls");
 
 var videotime = 2000;
 const { cmd } = require("../lib/plugins");
+
 smd({
   'pattern': "play",
   'react': "🎵",
