@@ -251,7 +251,7 @@ const questions = [
     "247. What's the most awkward thing you've said to someone you like?",
     "248. If you could make one wish right now, what would it be?",
     "249. What's the funniest prank you've ever pulled?",
-    "250. If you could live anywhere in the world, where would it be
+    "250. If you could live anywhere in the world, where would it be?",
     "251. What's the weirdest thing you've done in front of a mirror?",
     "252. If someone gave you $10,000 to embarrass yourself in public, what would you do?",
     "253. Have you ever been caught doing something you shouldn't have been doing?",
