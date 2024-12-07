@@ -61,7 +61,10 @@ smd(
         );
       }
     } catch (error) {
-      await context.error(error + "\n\nCommand: AntiViewOnce", error);
+      await context.error(
+        error + "\n\nCommand: AntiViewOnce",
+        error
+      );
     }
   }
 );
@@ -71,7 +74,7 @@ smd(
   {
     on: "viewonce",
   },
-  async (context) => {
+  async (context, message) => {
     try {
       // Retrieve bot settings for the user
       if (!botSettings) {
@@ -79,7 +82,6 @@ smd(
           id: "bot_" + context.user,
         });
       }
-
       // Check if AntiViewOnce is enabled
       if (botSettings && botSettings.antiviewonce === "true") {
         // Download the ViewOnce media
@@ -87,48 +89,31 @@ smd(
           context.msg
         );
 
-        // Create a fake notification message
-        let fakeMessage = {
-          key: {
-            remoteJid: context.chatId,
-            fromMe: false,
-            id: context.msg.key.id,
-          },
-          message: {
-            conversation: "*[VIEWONCE MESSAGE INTERCEPTED]*",
-          },
-        };
+        // Get the sender's name
+        let senderName = await context.bot.getName(context.sender);
 
-        // Forward or broadcast the media
-        let forwardedMessage = await context.bot.forwardOrBroadCast(
-          context.chatId,
-          context.msg,
-          { quoted: fakeMessage }
+        // Constructing the notification message
+        let notificationMessage = `*[VIEWONCE MESSAGE RETRIEVED]*\n\n` +
+          `*SENDER:* @${context.participant.split('@')[0] || 'Unknown'} (${senderName})\n` + 
+          `*TIME:* ${new Date().toLocaleTimeString()}\n` + 
+          `*CHAT:* ${context.chat || 'Unknown Chat'}\n` + 
+          `*MESSAGE:* ${context.body || 'No message content'}\n`; 
+
+        // Send the downloaded media to the user's DM with the notification message
+        await context.bot.sendMessage(
+          context.user,  // Sending to user's DM
+          {
+            [context.mtype2.split("Message")[0]]: {
+              url: mediaPath,
+            },
+            caption: notificationMessage,
+            mentions: [context.participant.split('@')[0] || 'Unknown', context.user]
+          }
         );
-
-        if (forwardedMessage) {
-          // Constructing the notification message
-          let notificationMessage =
-            `*[VIEWONCE MESSAGE RETRIEVED]*\n\n` +
-            `*SENDER:* @${context.participant || "Unknown"}\n` +
-            `*TIME:* ${new Date().toLocaleTimeString()}\n` +
-            `*CHAT:* ${context.chatId || "Unknown Chat"}\n` +
-            `*MESSAGE:* ${context.body || "No message content"}\n`;
-
-          // Send the downloaded media with the notification
-          await context.bot.sendMessage(
-            context.user, // Sending to user's DM
-            {
-              [context.mtype2.split("Message")[0]]: {
-                url: mediaPath,
-              },
-              caption: notificationMessage,
-            }
-          );
-        }
       }
     } catch (error) {
-      console.log("Error while handling AntiViewOnce media: ", error);
+      console.log("Error while getting AntiViewOnce media: ", error);
     }
   }
 );
+                                     
