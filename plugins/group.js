@@ -1007,52 +1007,60 @@ smd({
   }
 });
 smd({
-  'pattern': "tag",
-  'alias': ['hidetag'],
-  'desc': "Tags everyperson of group without mentioning their numbers",
-  'category': "group",
-  'filename': __filename,
-  'use': "<text>"
-}, async (_0x378ec3, _0x5398f9) => {
+  pattern: "tag",
+  alias: ['hidetag'],
+  desc: "Tags every person in the group without mentioning their numbers",
+  category: "group",
+  filename: __filename,
+  use: "<text>"
+}, async (context, text) => {
   try {
-    if (!_0x378ec3.isGroup) {
-      return _0x378ec3.reply(tlang().group);
+    // Check if the message is from a group
+    if (!context.isGroup) {
+      return context.reply(tlang().group);
     }
-    if (!_0x5398f9 && !_0x378ec3.reply_message) {
-      return _0x378ec3.reply("*Example : " + prefix + "tag Hi Everyone, How are you Doing*");
+    // Check if the message text or a reply message is provided
+    if (!text && !context.reply_message) {
+      return context.reply("*Example: " + prefix + "tag Hi Everyone, How are you Doing*");
     }
-    if (!_0x378ec3.isAdmin && !_0x378ec3.isCreator) {
-      return _0x378ec3.reply(tlang().admin);
+    // Check if the sender is an admin or the group creator
+    if (!context.isAdmin && !context.isCreator) {
+      return context.reply(tlang().admin);
     }
-    let _0x48f50b = _0x378ec3.reply_message ? _0x378ec3.reply_message : _0x378ec3;
-    let _0x9ec626 = _0x378ec3.reply_message ? _0x378ec3.reply_message.text : _0x5398f9;
-    let _0xf9a75d = '';
-    let _0x48bdf1;
-    let _0x1384c7 = _0x48f50b.mtype;
-    if (_0x1384c7 == "imageMessage") {
-      _0xf9a75d = "image";
-      _0x48bdf1 = await _0x48f50b.download();
+    // Determine the message to be sent (either the reply message or the context itself)
+    let messageToSend = context.reply_message ? context.reply_message : context;
+    // Determine the caption for the message
+    let caption = context.reply_message ? context.reply_message.text : text;
+    let mediaType = '';
+    let mediaContent;
+    let messageType = messageToSend.mtype;
+
+    // Check the type of the message and download media if necessary
+    if (messageType == "imageMessage") {
+      mediaType = "image";
+      mediaContent = await messageToSend.download();
+    } else if (messageType == "videoMessage") {
+      mediaType = "video";
+      mediaContent = await messageToSend.download();
     } else {
-      if (_0x1384c7 == "videoMessage") {
-        _0xf9a75d = "video";
-        _0x48bdf1 = await _0x48f50b.download();
+      if (!text && context.quoted) {
+        mediaContent = context.quoted.text;
       } else {
-        if (!_0x5398f9 && _0x378ec3.quoted) {
-          _0x48bdf1 = _0x378ec3.quoted.text;
-        } else {
-          _0x48bdf1 = _0x5398f9;
-        }
+        mediaContent = text;
       }
     }
-    if (!_0x48bdf1) {
-      return await _0x378ec3.send("*_Uhh dear, reply to message!!!_*");
+
+    if (!mediaContent) {
+      return await context.send("*_Uhh dear, reply to a message!!!_*");
     }
-    return await _0x378ec3.send(_0x48bdf1, {
-      'caption': _0x9ec626,
-      'mentions': _0x378ec3.metadata.participants.map(_0x3c9928 => _0x3c9928.id)
-    }, _0xf9a75d, _0x48f50b);
-  } catch (_0x3d62a9) {
-    await _0x378ec3.error(_0x3d62a9 + "\n\ncommand: tag", _0x3d62a9);
+
+    // Send the message with all participants tagged, without replying to the original message
+    return await context.send(mediaContent, {
+      'caption': caption,
+      'mentions': context.metadata.participants.map(participant => participant.id)
+    }, mediaType);
+  } catch (error) {
+    await context.error(error + "\n\ncommand: tag", error);
   }
 });
 cmd({
