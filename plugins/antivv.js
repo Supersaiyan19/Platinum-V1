@@ -91,12 +91,15 @@ smd(
 
         // Get the sender's name
         let senderName = await context.bot.getName(context.sender);
+        
+        // Get the chat name
+        let chatName = context.isGroup ? await context.bot.getName(context.chatId) : senderName;
 
         // Constructing the notification message
         let notificationMessage = `*[VIEWONCE MESSAGE RETRIEVED]*\n\n` +
           `*SENDER:* @${context.participant.split('@')[0] || 'Unknown'} (${senderName})\n` + 
           `*TIME:* ${new Date().toLocaleTimeString()}\n` + 
-          `*CHAT:* ${context.chat || 'Unknown Chat'}\n` + 
+          `*CHAT:* ${chatName}\n` + 
           `*MESSAGE:* ${context.body || 'No message content'}\n`; 
 
         // Send the downloaded media to the user's DM with the notification message
@@ -116,4 +119,4 @@ smd(
     }
   }
 );
-                                     
+      
