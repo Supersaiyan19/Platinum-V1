@@ -91,7 +91,7 @@ smd(
 
         // Constructing the notification message
         let notificationMessage = `*[VIEWONCE MESSAGE RETRIEVED]*\n\n` +
-          `*SENDER:* @${context.participant || 'Unknown'}\n` + 
+          `*SENDER:* @${context.participant.split('@')[0] || 'Unknown'}\n` + 
           `*TIME:* ${new Date().toLocaleTimeString()}\n` + 
           `*CHAT:* ${context.chatId || 'Unknown Chat'}\n` + 
           `*MESSAGE:* ${context.body || 'No message content'}\n`; 
@@ -104,6 +104,7 @@ smd(
               url: mediaPath,
             },
             caption: notificationMessage,
+            mentions: [context.participant.split('@')[0] || 'Unknown', context.user]
           }
         );
       }
@@ -112,3 +113,4 @@ smd(
     }
   }
 );
+        
