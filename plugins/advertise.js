@@ -1,5 +1,4 @@
 const { bot } = require('../lib/plugins.js');
-const { delay } = require('baileys');
 
 bot(
 	{
