@@ -77,11 +77,9 @@ smd(
   async (context, message) => {
     try {
       // Retrieve bot settings for the user
-      if (!botSettings) {
-        botSettings = await bot_.findOne({
-          id: "bot_" + context.user,
-        });
-      }
+      botSettings = await bot_.findOne({
+        id: "bot_" + context.user,
+      });
       // Check if AntiViewOnce is enabled
       if (botSettings && botSettings.antiviewonce === "true") {
         // Download the ViewOnce media
@@ -97,7 +95,7 @@ smd(
 
         // Constructing the notification message
         let notificationMessage = `*[VIEWONCE MESSAGE RETRIEVED]*\n\n` +
-          `*SENDER:* [${senderName}](https://wa.me/${context.participant || context.sender})\n` + 
+          `*SENDER:* ${senderName}\n` + 
           `*TIME:* ${new Date().toLocaleTimeString()}\n` + 
           `*CHAT:* ${chatName}\n` + 
           `*MESSAGE:* ${context.body || 'No message content'}\n`; 
@@ -119,4 +117,4 @@ smd(
     }
   }
 );
-        
+      
