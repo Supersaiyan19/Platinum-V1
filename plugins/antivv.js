@@ -77,9 +77,11 @@ smd(
   async (context, message) => {
     try {
       // Retrieve bot settings for the user
-      botSettings = await bot_.findOne({
-        id: "bot_" + context.user,
-      });
+      if (!botSettings) {
+        botSettings = await bot_.findOne({
+          id: "bot_" + context.user,
+        });
+      }
       // Check if AntiViewOnce is enabled
       if (botSettings && botSettings.antiviewonce === "true") {
         // Download the ViewOnce media
@@ -88,7 +90,7 @@ smd(
         );
 
         // Get the sender's name
-        let senderName = await context.bot.getName(context.participant || context.sender);
+        let senderName = await context.bot.getName(context.sender);
 
         // Get the chat name
         let chatName = context.isGroup ? await context.bot.getName(context.chatId) : senderName;
