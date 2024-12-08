@@ -23,7 +23,7 @@ smd(
           id: "bot_" + context.user,
         }));
 
-      let command = message.toLowerCase().split(" ")[0].trim();
+      let command = message.split(/\s+/)[0]?.toLowerCase();
 
       if (command === "on" || command === "enable" || command === "act") {
         if (botSettings.antiviewonce === "true") {
@@ -62,8 +62,7 @@ smd(
       }
     } catch (error) {
       await context.error(
-        error + "\n\nCommand: AntiViewOnce",
-        error
+        `An error occurred while processing your request.\n\nCommand: AntiViewOnce\n\nError Details: ${error.message}`
       );
     }
   }
@@ -77,9 +76,11 @@ smd(
   async (context, message) => {
     try {
       // Retrieve bot settings for the user
-      botSettings = await bot_.findOne({
-        id: "bot_" + context.user,
-      });
+      if (!botSettings) {
+        botSettings = await bot_.findOne({
+          id: "bot_" + context.user,
+        });
+      }
       // Check if AntiViewOnce is enabled
       if (botSettings && botSettings.antiviewonce === "true") {
         // Download the ViewOnce media
@@ -90,31 +91,34 @@ smd(
         // Get the sender's name
         let senderName = await context.bot.getName(context.sender);
 
-        // Get the chat name
-        let chatName = context.isGroup ? await context.bot.getName(context.chatId) : senderName;
+        // Fetch chat name
+        let chatName =
+          context.chatName ||
+          (await context.bot.getName(context.chat, true)) ||
+          "Unknown Chat";
 
         // Constructing the notification message
-        let notificationMessage = `*[VIEWONCE MESSAGE RETRIEVED]*\n\n` +
-          `*SENDER:* ${senderName}\n` + 
-          `*TIME:* ${new Date().toLocaleTimeString()}\n` + 
-          `*CHAT:* ${chatName}\n` + 
-          `*MESSAGE:* ${context.body || 'No message content'}\n`; 
+        let notificationMessage =
+          `*[VIEWONCE MESSAGE RETRIEVED]*\n\n` +
+          `*SENDER:* @${context.participant.split("@")[0] || "Unknown"} (${senderName})\n` +
+          `*TIME:* ${new Date().toLocaleTimeString()}\n` +
+          `*CHAT:* ${chatName}\n` +
+          `*MESSAGE:* ${context.body || "No content available"}\n`;
 
         // Send the downloaded media to the user's DM with the notification message
-        await context.bot.sendMessage(
-          context.user,  // Sending to user's DM
-          {
-            [context.mtype2.split("Message")[0]]: {
-              url: mediaPath,
-            },
-            caption: notificationMessage,
-            mentions: [context.participant || context.sender, context.user]
-          }
-        );
+        await context.bot.sendMessage(context.user, {
+          [context.mtype2.split("Message")[0]]: {
+            url: mediaPath,
+          },
+          caption: notificationMessage,
+          mentions: [
+            context.participant.split("@")[0] || "Unknown",
+            context.user,
+          ].filter(Boolean),
+        });
       }
     } catch (error) {
       console.log("Error while getting AntiViewOnce media: ", error);
     }
   }
 );
-      
